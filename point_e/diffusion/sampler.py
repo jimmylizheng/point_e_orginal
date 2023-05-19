@@ -135,6 +135,7 @@ class PointCloudSampler:
                     stage_model_kwargs[k] = torch.cat([v, torch.zeros_like(v)], dim=0)
 
             if stage_use_karras:
+                print("is stage_use_karras") # for test purpose
                 samples_it = karras_sample_progressive(
                     diffusion=diffusion,
                     model=model,
@@ -148,7 +149,9 @@ class PointCloudSampler:
                     s_churn=stage_s_churn,
                     guidance_scale=stage_guidance_scale,
                 )
+                print("end is stage_use_karras") # for test purpose
             else:
+                print("not stage_use_karras") # for test purpose
                 internal_batch_size = batch_size
                 if stage_guidance_scale:
                     model = self._uncond_guide_model(model, stage_guidance_scale)
@@ -160,12 +163,15 @@ class PointCloudSampler:
                     device=self.device,
                     clip_denoised=self.clip_denoised,
                 )
+            print("Start x loop")
             for x in samples_it:
                 samples = x["pred_xstart"][:batch_size]
                 if "low_res" in stage_model_kwargs:
+                    print("is low_res") # for test purpose
                     samples = torch.cat(
                         [stage_model_kwargs["low_res"][: len(samples)], samples], dim=-1
                     )
+                # print("size of samples_it",len(samples_it))
                 yield samples
 
     @classmethod

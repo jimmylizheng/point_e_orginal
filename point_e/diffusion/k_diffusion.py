@@ -134,6 +134,7 @@ def karras_sample_progressive(
     s_noise=1.0,
     guidance_scale=0.0,
 ):
+    print("start progressive") # test only
     sigmas = get_sigmas_karras(steps, sigma_min, sigma_max, rho, device=device)
     x_T = th.randn(*shape, device=device) * sigma_max
     sample_fn = {"heun": sample_heun, "dpm": sample_dpm, "ancestral": sample_euler_ancestral}[
@@ -146,7 +147,7 @@ def karras_sample_progressive(
         sampler_args = {}
 
     if isinstance(diffusion, KarrasDenoiser):
-
+        print("is instance") # test only
         def denoiser(x_t, sigma):
             _, denoised = diffusion.denoise(model, x_t, sigma, **model_kwargs)
             if clip_denoised:
@@ -155,7 +156,7 @@ def karras_sample_progressive(
 
     elif isinstance(diffusion, GaussianDiffusion):
         model = GaussianToKarrasDenoiser(model, diffusion)
-
+        print("not instance") # test only
         def denoiser(x_t, sigma):
             _, denoised = model.denoise(
                 x_t, sigma, clip_denoised=clip_denoised, model_kwargs=model_kwargs
@@ -178,6 +179,7 @@ def karras_sample_progressive(
     else:
         guided_denoiser = denoiser
 
+    print("start obj loop")
     for obj in sample_fn(
         guided_denoiser,
         x_T,
