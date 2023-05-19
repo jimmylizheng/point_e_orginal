@@ -147,7 +147,7 @@ def karras_sample_progressive(
         sampler_args = {}
 
     if isinstance(diffusion, KarrasDenoiser):
-        print("is instance") # test only
+        print("is KarrasDenoiser") # test only
         def denoiser(x_t, sigma):
             _, denoised = diffusion.denoise(model, x_t, sigma, **model_kwargs)
             if clip_denoised:
@@ -156,7 +156,7 @@ def karras_sample_progressive(
 
     elif isinstance(diffusion, GaussianDiffusion):
         model = GaussianToKarrasDenoiser(model, diffusion)
-        print("not instance") # test only
+        print("is GaussianDiffusionDenoiser") # test only
         def denoiser(x_t, sigma):
             _, denoised = model.denoise(
                 x_t, sigma, clip_denoised=clip_denoised, model_kwargs=model_kwargs
@@ -167,7 +167,7 @@ def karras_sample_progressive(
         raise NotImplementedError
 
     if guidance_scale != 0 and guidance_scale != 1:
-
+        print("different guided_denoiser") # test only
         def guided_denoiser(x_t, sigma):
             x_t = th.cat([x_t, x_t], dim=0)
             sigma = th.cat([sigma, sigma], dim=0)
@@ -177,6 +177,7 @@ def karras_sample_progressive(
             return x_0
 
     else:
+        print("denoiser as guided_denoiser") # test only
         guided_denoiser = denoiser
 
     print("start obj loop")
@@ -188,8 +189,10 @@ def karras_sample_progressive(
         **sampler_args,
     ):
         if isinstance(diffusion, GaussianDiffusion):
+            print("is GaussianDiffusion") # test only
             yield diffusion.unscale_out_dict(obj)
         else:
+            print("not GaussianDiffusion") # test only
             yield obj
 
 
