@@ -12,6 +12,7 @@ from point_e.util.point_cloud import PointCloud
 from .gaussian_diffusion import GaussianDiffusion
 from .k_diffusion import karras_sample_progressive
 
+import time
 
 class PointCloudSampler:
     """
@@ -97,6 +98,7 @@ class PointCloudSampler:
         self, batch_size: int, model_kwargs: Dict[str, Any]
     ) -> Iterator[torch.Tensor]:
         samples = None
+        stage_seqnum=2
         for (
             model,
             diffusion,
@@ -120,6 +122,8 @@ class PointCloudSampler:
             self.s_churn,
             self.model_kwargs_key_filter,
         ):
+            print(f"start timing for stage {stage_seqnum}")
+            start_time=time.time()
             stage_model_kwargs = model_kwargs.copy()
             if stage_key_filter != "*":
                 use_keys = set(stage_key_filter.split(","))
@@ -163,16 +167,22 @@ class PointCloudSampler:
                     device=self.device,
                     clip_denoised=self.clip_denoised,
                 )
-            print("Start x loop")
+            # print("Start x loop")
+
             for x in samples_it:
                 samples = x["pred_xstart"][:batch_size]
                 if "low_res" in stage_model_kwargs:
-                    print("is low_res") # for test purpose
+                    # print("is low_res") # for test purpose
                     samples = torch.cat(
                         [stage_model_kwargs["low_res"][: len(samples)], samples], dim=-1
                     )
                 # print("size of samples_it",len(samples_it))
                 yield samples
+            print(f"end timing for stage {stage_seqnum}")
+            end_time=time.time()
+            runtime=start_time-end_time
+            print(f"runtime for stage {stage_seqnum} is {runtime} seconds")
+            stage_seqnum+=1
 
     @classmethod
     def combine(cls, *samplers: "PointCloudSampler") -> "PointCloudSampler":
