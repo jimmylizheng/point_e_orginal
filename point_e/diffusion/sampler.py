@@ -131,7 +131,7 @@ class PointCloudSampler:
             if samples is not None:
                 stage_model_kwargs["low_res"] = samples
             if hasattr(model, "cached_model_kwargs"):
-                stage_model_kwargs = model.cached_model_kwargs(batch_size, stage_model_kwargs)
+                stage_model_kwargs = model.cached_model_kwargs(batch_size, stage_model_kwargs) # transform texr to 2d?
             sample_shape = (batch_size, 3 + len(self.aux_channels), stage_num_points)
 
             if stage_guidance_scale != 1 and stage_guidance_scale != 0:
@@ -180,7 +180,7 @@ class PointCloudSampler:
                 yield samples
             print(f"end timing for stage {stage_seqnum}")
             end_time=time.time()
-            runtime=start_time-end_time
+            runtime=-start_time+end_time
             print(f"runtime for stage {stage_seqnum} is {runtime} seconds")
             stage_seqnum+=1
 

@@ -189,10 +189,10 @@ def karras_sample_progressive(
         **sampler_args,
     ):
         if isinstance(diffusion, GaussianDiffusion):
-            print("is GaussianDiffusion") # test only
+            # print("is GaussianDiffusion") # test only
             yield diffusion.unscale_out_dict(obj)
         else:
-            print("not GaussianDiffusion") # test only
+            # print("not GaussianDiffusion") # test only
             yield obj
 
 
