@@ -45,7 +45,7 @@ def plot_memory_usage(memory_usage_data):
 
     plt.plot(timestamps, memory_usages)
     plt.xlabel('Time (s)')
-    plt.ylabel('Memory Usage (bytes)')
+    plt.ylabel('Memory Usage (MiB)')
     plt.title('GPU Memory Usage')
     plt.grid(True)
     plt.show()
@@ -159,6 +159,9 @@ def main():
     
     # Set a prompt to condition on.
     prompt = 'a red motorcycle'
+    
+    print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")
+    print("start diffusion")
 
     # Produce a sample from the model.
     samples = None
@@ -171,7 +174,7 @@ def main():
     print(f"GPU Memory Usage for Diffusion: {diffusion_gpu_memory} MiB")
     
     pc = sampler.output_to_point_clouds(samples)[0]
-    fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
+    # fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
     
     gpu_memory = get_gpu_memory_usage()
     print(f"Total GPU Memory Usage: {gpu_memory} MiB")

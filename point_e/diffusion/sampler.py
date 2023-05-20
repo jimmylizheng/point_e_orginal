@@ -13,6 +13,13 @@ from .gaussian_diffusion import GaussianDiffusion
 from .k_diffusion import karras_sample_progressive
 
 import time
+import subprocess
+import re
+
+def get_gpu_memory_usage():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,nounits,noheader'])
+    memory_used = re.findall(r'\d+', output.decode('utf-8'))
+    return int(memory_used[0])
 
 class PointCloudSampler:
     """
@@ -182,6 +189,8 @@ class PointCloudSampler:
             end_time=time.time()
             runtime=-start_time+end_time
             print(f"runtime for stage {stage_seqnum} is {runtime} seconds")
+            gpu_memory = get_gpu_memory_usage()
+            print(f"total gpu memory usage when stage {stage_seqnum} finishes is {gpu_memory} MiB")
             stage_seqnum+=1
 
     @classmethod
