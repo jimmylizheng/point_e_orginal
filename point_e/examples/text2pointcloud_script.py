@@ -53,7 +53,7 @@ class GPU_moniter:
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
-                print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
+                # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
 
