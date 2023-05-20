@@ -31,6 +31,11 @@ def get_volatile_gpu_memory():
     memory_used = memory_total - memory_free
     return memory_used
 
+def get_ecc_memory():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.ecc.errors', '--format=csv,nounits,noheader'])
+    ecc_memory = re.findall(r'\d+', output.decode('utf-8'))
+    return int(ecc_memory[0])
+
 def plot_memory_usage(memory_usage_data):
     """
     Plot the memory usage graph.
@@ -55,6 +60,7 @@ class GPU_moniter:
         self.memory_usage_data = []
         self.util_mem_usage_data = []
         self.vol_mem_usage_data = []
+        self.ecc_mem_data = []
         self.start_time = time.time()
         self.interval = interval
         # Create and start the monitoring thread
@@ -67,11 +73,13 @@ class GPU_moniter:
             memory_usage = get_gpu_memory_usage()
             util_mem_usage = get_gpu_utilization()
             vol_mem_usage = get_volatile_gpu_memory()
+            gcc_mem_usage = get_ecc_memory()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
                 self.util_mem_usage_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
+                self.ecc_mem_data.append((current_time, gcc_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
@@ -94,6 +102,8 @@ class GPU_moniter:
             plot_memory_usage(self.util_mem_usage_data)
         elif mode=='vol':
             plot_memory_usage(self.vol_mem_usage_data)
+        elif mode=='ecc':
+            plot_memory_usage(self.ecc_mem_data)
 
 def main():
     gpu_moniter=GPU_moniter(1)
