@@ -23,6 +23,14 @@ def get_gpu_utilization():
     gpu_util = re.findall(r'\d+', output.decode('utf-8'))
     return int(gpu_util[0])
 
+def get_volatile_gpu_memory():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.total,memory.free', '--format=csv,nounits,noheader'])
+    memory_info = re.findall(r'\d+', output.decode('utf-8'))
+    memory_total = int(memory_info[0])
+    memory_free = int(memory_info[1])
+    memory_used = memory_total - memory_free
+    return memory_used
+
 def plot_memory_usage(memory_usage_data):
     """
     Plot the memory usage graph.
@@ -46,6 +54,7 @@ class GPU_moniter:
         self.stop_flag=False
         self.memory_usage_data = []
         self.util_mem_usage_data = []
+        self.vol_mem_usage_data = []
         self.start_time = time.time()
         self.interval = interval
         # Create and start the monitoring thread
@@ -56,11 +65,13 @@ class GPU_moniter:
     def monitor_memory(self):
         while True:
             memory_usage = get_gpu_memory_usage()
-            util_mem_usage = get_gpu_memory_usage()
+            util_mem_usage = get_gpu_utilization()
+            vol_mem_usage = get_volatile_gpu_memory()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
                 self.util_mem_usage_data.append((current_time, util_mem_usage))
+                self.vol_mem_usage_data.append((current_time, vol_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
@@ -79,8 +90,10 @@ class GPU_moniter:
     def mem_plot(self, mode='mem'):
         if mode=='mem':
             plot_memory_usage(self.memory_usage_data)
-        else:
+        elif mode=='util':
             plot_memory_usage(self.util_mem_usage_data)
+        elif mode=='vol':
+            plot_memory_usage(self.vol_mem_usage_data)
 
 def main():
     gpu_moniter=GPU_moniter(1)
