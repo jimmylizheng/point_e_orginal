@@ -147,6 +147,9 @@ def main():
     model_gpu_memory = gpu_memory-old_gpu_memory
     print(f"GPU Memory Usage for Loading Model: {model_gpu_memory} MiB")
     
+    gpu_memory = get_gpu_memory_usage()
+    print(f"Total GPU Memory Usage before setting sampler: {gpu_memory} MiB")
+    
     sampler = PointCloudSampler(
         device=device,
         models=[base_model, upsampler_model],
