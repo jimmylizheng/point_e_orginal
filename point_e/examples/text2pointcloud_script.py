@@ -163,7 +163,14 @@ def main():
     print(f"Total GPU Memory Usage: {gpu_memory} MiB")
     
     gpu_moniter.end_monitor()
+    print("Total GPU Memory Usage")
+    gpu_moniter.mem_plot()
+    print("Util GPU Memory Usage")
     gpu_moniter.mem_plot('util')
+    print("Volatile GPU Memory Usage")
+    gpu_moniter.mem_plot('vol')
+    print("ecc GPU Memory Usage")
+    gpu_moniter.mem_plot('ecc')
 
 if __name__ == "__main__":
     main()
