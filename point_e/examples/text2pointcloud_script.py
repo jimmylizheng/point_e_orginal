@@ -36,31 +36,22 @@ def get_ecc_memory():
     ecc_memory = re.findall(r'\d+', output.decode('utf-8'))
     return int(ecc_memory[0])
 
-def plot_memory_usage(memory_usage_data):
-    """
-    Plot the memory usage graph.
-    """
-    timestamps = [t for t, _ in memory_usage_data]
-    memory_usages = [m for _, m in memory_usage_data]
-
-    plt.plot(timestamps, memory_usages)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Memory Usage (MiB)')
-    plt.title('GPU Memory Usage')
-    plt.grid(True)
-    plt.show()
+def get_gpu_power_consumption():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=power.draw', '--format=csv,nounits,noheader'])
+    power_draw = re.findall(r'\d+\.?\d*', output.decode('utf-8'))
+    return float(power_draw[0])
     
-def plot_memory_util(util_data):
+def plot_measurement(data, x_label='Time (s)', y_label='Memory Usage (MiB)', title='GPU Memory Usage'):
     """
-    Plot the memory utilization graph.
+    Plot the measurement graph.
     """
-    timestamps = [t for t, _ in util_data]
-    memory_usages = [m for _, m in util_data]
+    timestamps = [t for t, _ in data]
+    measured_val = [m for _, m in data]
 
-    plt.plot(timestamps, memory_usages)
-    plt.xlabel('Time (s)')
-    plt.ylabel('GPU Utilization %')
-    plt.title('GPU Utilization')
+    plt.plot(timestamps, measured_val)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
     plt.grid(True)
     plt.show()
     
@@ -74,6 +65,7 @@ class GPU_moniter:
         self.memory_usage_data = []
         self.util_data = []
         self.vol_mem_usage_data = []
+        self.power_data = []
         # self.ecc_mem_data = []
         self.start_time = time.time()
         self.interval = interval
@@ -87,12 +79,14 @@ class GPU_moniter:
             memory_usage = get_gpu_memory_usage()
             util_mem_usage = get_gpu_utilization()
             vol_mem_usage = get_volatile_gpu_memory()
+            power_usage=get_gpu_power_consumption()
             # gcc_mem_usage = get_ecc_memory()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
                 self.util_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
+                self.power_data.append((current_time, power_usage))
                 # self.ecc_mem_data.append((current_time, gcc_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
@@ -111,11 +105,13 @@ class GPU_moniter:
         
     def mem_plot(self, mode='mem'):
         if mode=='mem':
-            plot_memory_usage(self.memory_usage_data)
+            plot_measurement(self.memory_usage_data)
         elif mode=='util':
-            plot_memory_usage(self.util_data)
+            plot_measurement(self.util_data,'Time (s)','GPU Utilization (%)','GPU Utilization')
         elif mode=='vol':
-            plot_memory_usage(self.vol_mem_usage_data)
+            plot_measurement(self.vol_mem_usage_data)
+        elif mode=='power':
+            plot_measurement(self.power_data,'Time (s)','GPU Power Consumption (W)','GPU Power Consumption')
         # elif mode=='ecc':
             # plot_memory_usage(self.ecc_mem_data)
 
@@ -128,6 +124,13 @@ def main():
     print('creating base model...')
     base_name = 'base40M-textvec'
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
+    
+    total_para_nums = 0
+    for param in base_model.parameters():
+        if param.requires_grad:
+            total_para_nums += param.numel()
+    print(f"Total number of parameters for the model is {total_para_nums}")
+    
     base_model.eval()
     base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
 
@@ -185,10 +188,12 @@ def main():
     gpu_moniter.end_monitor()
     print("Total GPU Memory Usage")
     gpu_moniter.mem_plot()
-    print("Util GPU Memory Usage")
+    print("GPU Utilization")
     gpu_moniter.mem_plot('util')
     print("Volatile GPU Memory Usage")
     gpu_moniter.mem_plot('vol')
+    print("GPU Power Consumption")
+    gpu_moniter.mem_plot('power')
     # print("ecc GPU Memory Usage")
     # gpu_moniter.mem_plot('ecc')
 
