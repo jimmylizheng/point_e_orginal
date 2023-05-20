@@ -60,7 +60,7 @@ class GPU_moniter:
         self.memory_usage_data = []
         self.util_mem_usage_data = []
         self.vol_mem_usage_data = []
-        self.ecc_mem_data = []
+        # self.ecc_mem_data = []
         self.start_time = time.time()
         self.interval = interval
         # Create and start the monitoring thread
@@ -73,13 +73,13 @@ class GPU_moniter:
             memory_usage = get_gpu_memory_usage()
             util_mem_usage = get_gpu_utilization()
             vol_mem_usage = get_volatile_gpu_memory()
-            gcc_mem_usage = get_ecc_memory()
+            # gcc_mem_usage = get_ecc_memory()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
                 self.util_mem_usage_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
-                self.ecc_mem_data.append((current_time, gcc_mem_usage))
+                # self.ecc_mem_data.append((current_time, gcc_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
@@ -102,8 +102,8 @@ class GPU_moniter:
             plot_memory_usage(self.util_mem_usage_data)
         elif mode=='vol':
             plot_memory_usage(self.vol_mem_usage_data)
-        elif mode=='ecc':
-            plot_memory_usage(self.ecc_mem_data)
+        # elif mode=='ecc':
+            # plot_memory_usage(self.ecc_mem_data)
 
 def main():
     gpu_moniter=GPU_moniter(1)
@@ -169,8 +169,8 @@ def main():
     gpu_moniter.mem_plot('util')
     print("Volatile GPU Memory Usage")
     gpu_moniter.mem_plot('vol')
-    print("ecc GPU Memory Usage")
-    gpu_moniter.mem_plot('ecc')
+    # print("ecc GPU Memory Usage")
+    # gpu_moniter.mem_plot('ecc')
 
 if __name__ == "__main__":
     main()
