@@ -50,6 +50,20 @@ def plot_memory_usage(memory_usage_data):
     plt.grid(True)
     plt.show()
     
+def plot_memory_util(util_data):
+    """
+    Plot the memory utilization graph.
+    """
+    timestamps = [t for t, _ in util_data]
+    memory_usages = [m for _, m in util_data]
+
+    plt.plot(timestamps, memory_usages)
+    plt.xlabel('Time (s)')
+    plt.ylabel('GPU Utilization %')
+    plt.title('GPU Utilization')
+    plt.grid(True)
+    plt.show()
+    
 class GPU_moniter:
     """
     Monitor the GPU memory usage every 'interval' seconds until the program completes.
@@ -58,7 +72,7 @@ class GPU_moniter:
         """Initialize GPU_moniter."""
         self.stop_flag=False
         self.memory_usage_data = []
-        self.util_mem_usage_data = []
+        self.util_data = []
         self.vol_mem_usage_data = []
         # self.ecc_mem_data = []
         self.start_time = time.time()
@@ -77,7 +91,7 @@ class GPU_moniter:
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
-                self.util_mem_usage_data.append((current_time, util_mem_usage))
+                self.util_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
                 # self.ecc_mem_data.append((current_time, gcc_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
@@ -99,7 +113,7 @@ class GPU_moniter:
         if mode=='mem':
             plot_memory_usage(self.memory_usage_data)
         elif mode=='util':
-            plot_memory_usage(self.util_mem_usage_data)
+            plot_memory_usage(self.util_data)
         elif mode=='vol':
             plot_memory_usage(self.vol_mem_usage_data)
         # elif mode=='ecc':
