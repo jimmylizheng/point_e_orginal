@@ -18,6 +18,11 @@ def get_gpu_memory_usage():
     memory_used = re.findall(r'\d+', output.decode('utf-8'))
     return int(memory_used[0])
 
+def get_gpu_utilization():
+    output = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,nounits,noheader'])
+    gpu_util = re.findall(r'\d+', output.decode('utf-8'))
+    return int(gpu_util[0])
+
 def plot_memory_usage(memory_usage_data):
     """
     Plot the memory usage graph.
@@ -40,6 +45,7 @@ class GPU_moniter:
         """Initialize GPU_moniter."""
         self.stop_flag=False
         self.memory_usage_data = []
+        self.util_mem_usage_data = []
         self.start_time = time.time()
         self.interval = interval
         # Create and start the monitoring thread
@@ -50,9 +56,11 @@ class GPU_moniter:
     def monitor_memory(self):
         while True:
             memory_usage = get_gpu_memory_usage()
+            util_mem_usage = get_gpu_memory_usage()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
+                self.util_mem_usage_data.append((current_time, util_mem_usage))
                 # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
@@ -67,8 +75,12 @@ class GPU_moniter:
         
         # Wait for the monitoring thread to complete
         self.monitor_thread.join()
-
-        plot_memory_usage(self.memory_usage_data)
+        
+    def mem_plot(self, mode='mem'):
+        if mode=='mem':
+            plot_memory_usage(self.memory_usage_data)
+        else:
+            plot_memory_usage(self.util_mem_usage_data)
 
 def main():
     gpu_moniter=GPU_moniter(1)
@@ -128,6 +140,7 @@ def main():
     print(f"Total GPU Memory Usage: {gpu_memory} MiB")
     
     gpu_moniter.end_monitor()
+    gpu_moniter.mem_plot('util')
 
 if __name__ == "__main__":
     main()
