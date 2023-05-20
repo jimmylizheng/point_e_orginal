@@ -129,7 +129,7 @@ class PointCloudSampler:
             self.s_churn,
             self.model_kwargs_key_filter,
         ):
-            print(f"start timing for stage {stage_seqnum}")
+            # print(f"start timing for stage {stage_seqnum}")
             start_time=time.time()
             stage_model_kwargs = model_kwargs.copy()
             if stage_key_filter != "*":
@@ -146,7 +146,7 @@ class PointCloudSampler:
                     stage_model_kwargs[k] = torch.cat([v, torch.zeros_like(v)], dim=0)
 
             if stage_use_karras:
-                print("is stage_use_karras") # for test purpose
+                # print("is stage_use_karras") # for test purpose
                 samples_it = karras_sample_progressive(
                     diffusion=diffusion,
                     model=model,
@@ -160,9 +160,9 @@ class PointCloudSampler:
                     s_churn=stage_s_churn,
                     guidance_scale=stage_guidance_scale,
                 )
-                print("end is stage_use_karras") # for test purpose
+                # print("end is stage_use_karras") # for test purpose
             else:
-                print("not stage_use_karras") # for test purpose
+                # print("not stage_use_karras") # for test purpose
                 internal_batch_size = batch_size
                 if stage_guidance_scale:
                     model = self._uncond_guide_model(model, stage_guidance_scale)
@@ -185,7 +185,7 @@ class PointCloudSampler:
                     )
                 # print("size of samples_it",len(samples_it))
                 yield samples
-            print(f"end timing for stage {stage_seqnum}")
+            # print(f"end timing for stage {stage_seqnum}")
             end_time=time.time()
             runtime=-start_time+end_time
             print(f"runtime for stage {stage_seqnum} is {runtime} seconds")

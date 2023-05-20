@@ -172,8 +172,8 @@ def main():
         gpu_memory = get_gpu_memory_usage()
         print(f"Current GPU Memory Usage: {gpu_memory} MiB")
     
-        gpu_memory = get_gpu_memory_usage()
-        print(f"Total GPU Memory Usage: {gpu_memory} MiB")
+    gpu_memory = get_gpu_memory_usage()
+    print(f"Total GPU Memory Usage: {gpu_memory} MiB")
 
 if __name__ == "__main__":
     main()
