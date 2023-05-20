@@ -129,13 +129,20 @@ def main():
     for param in base_model.parameters():
         if param.requires_grad:
             total_para_nums += param.numel()
-    print(f"Total number of parameters for the model is {total_para_nums}")
+    print(f"Total number of parameters for second stage is {total_para_nums}")
     
     base_model.eval()
     base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
 
     print('creating upsample model...')
     upsampler_model = model_from_config(MODEL_CONFIGS['upsample'], device)
+    
+    total_para_nums = 0
+    for param in base_model.parameters():
+        if param.requires_grad:
+            total_para_nums += param.numel()
+    print(f"Total number of parameters for third stage is {total_para_nums}")
+    
     upsampler_model.eval()
     upsampler_diffusion = diffusion_from_config(DIFFUSION_CONFIGS['upsample'])
 
