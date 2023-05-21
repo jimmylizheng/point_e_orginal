@@ -124,7 +124,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     print('creating base model...')
-    base_name = 'base40M-textvec'
+    base_name = 'base40M-uncond'
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
     
     total_para_nums = 0
@@ -182,7 +182,8 @@ def main():
 
     # Produce a sample from the model.
     samples = None
-    for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(texts=[prompt]))):
+    # for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(texts=[prompt]))):
+    for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict())):
         samples = x
         
     if gpu_mode:

@@ -175,7 +175,7 @@ def main():
     )
 
     # Load an image to condition on.
-    img = Image.open('example_data/cube_stack.jpg')
+    img = Image.open('./point_e/examples/example_data/cube_stack.jpg')
     
     if gpu_mode:
         print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")

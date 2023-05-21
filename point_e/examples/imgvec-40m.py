@@ -1,3 +1,4 @@
+from PIL import Image
 import torch
 from tqdm.auto import tqdm
 
@@ -115,23 +116,24 @@ class GPU_moniter:
         # elif mode=='ecc':
             # plot_memory_usage(self.ecc_mem_data)
 
+
 def main():
     gpu_mode=False
     if gpu_mode:
         gpu_moniter=GPU_moniter(1)
         gpu_memory = get_gpu_memory_usage()
-
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     print('creating base model...')
-    base_name = 'base40M-textvec'
+    base_name = 'base40M-imagevec' # use base300M or base1B for better results
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
     
     total_para_nums = 0
     for param in base_model.parameters():
         if param.requires_grad:
             total_para_nums += param.numel()
-    print(f"Total number of parameters for second stage is {total_para_nums}")
+    print(f"Total number of parameters for third stage is {total_para_nums}")
     
     base_model.eval()
     base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
@@ -162,19 +164,18 @@ def main():
         
         gpu_memory = get_gpu_memory_usage()
         print(f"Total GPU Memory Usage before setting sampler: {gpu_memory} MiB")
-    
+
     sampler = PointCloudSampler(
         device=device,
         models=[base_model, upsampler_model],
         diffusions=[base_diffusion, upsampler_diffusion],
         num_points=[1024, 4096 - 1024],
         aux_channels=['R', 'G', 'B'],
-        guidance_scale=[3.0, 0.0],
-        model_kwargs_key_filter=('texts', ''), # Do not condition the upsampler at all
+        guidance_scale=[3.0, 3.0],
     )
-    
-    # Set a prompt to condition on.
-    prompt = 'a red motorcycle'
+
+    # Load an image to condition on.
+    img = Image.open('./point_e/examples/example_data/cube_stack.jpg')
     
     if gpu_mode:
         print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")
@@ -182,7 +183,7 @@ def main():
 
     # Produce a sample from the model.
     samples = None
-    for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(texts=[prompt]))):
+    for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(images=[img]))):
         samples = x
         
     if gpu_mode:
@@ -190,7 +191,7 @@ def main():
         gpu_memory = get_gpu_memory_usage()
         diffusion_gpu_memory = gpu_memory-old_gpu_memory
         print(f"GPU Memory Usage for Diffusion: {diffusion_gpu_memory} MiB")
-    
+        
     pc = sampler.output_to_point_clouds(samples)[0]
     # fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
     
@@ -209,6 +210,6 @@ def main():
         gpu_moniter.mem_plot('power')
         # print("ecc GPU Memory Usage")
         # gpu_moniter.mem_plot('ecc')
-
+    
 if __name__ == "__main__":
     main()
