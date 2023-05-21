@@ -137,8 +137,15 @@ class PointCloudSampler:
                 stage_model_kwargs = {k: v for k, v in stage_model_kwargs.items() if k in use_keys}
             if samples is not None:
                 stage_model_kwargs["low_res"] = samples
+            
+            # transform input text to embedding
+            start_t=time.time()
             if hasattr(model, "cached_model_kwargs"):
-                stage_model_kwargs = model.cached_model_kwargs(batch_size, stage_model_kwargs) # transform texr to 2d?
+                stage_model_kwargs = model.cached_model_kwargs(batch_size, stage_model_kwargs) # transform text to 2d?
+            end_t=time.time()
+            clip_duration=end_t-start_t
+            print(f"CLIP duration for stage {stage_seqnum} is {clip_duration} seconds")
+            
             sample_shape = (batch_size, 3 + len(self.aux_channels), stage_num_points)
 
             if stage_guidance_scale != 1 and stage_guidance_scale != 0:
@@ -176,6 +183,7 @@ class PointCloudSampler:
                 )
             # print("Start x loop")
 
+            start_t=time.time()
             for x in samples_it:
                 samples = x["pred_xstart"][:batch_size]
                 if "low_res" in stage_model_kwargs:
@@ -186,8 +194,11 @@ class PointCloudSampler:
                 # print("size of samples_it",len(samples_it))
                 yield samples
             # print(f"end timing for stage {stage_seqnum}")
+            end_t=time.time()
             end_time=time.time()
+            diffusion_duration=end_t-start_t
             runtime=-start_time+end_time
+            print(f"Diffusion duration for stage {stage_seqnum} is {clip_duration} seconds")
             print(f"runtime for stage {stage_seqnum} is {runtime} seconds")
             gpu_memory = get_gpu_memory_usage()
             print(f"total gpu memory usage when stage {stage_seqnum} finishes is {gpu_memory} MiB")
