@@ -198,7 +198,7 @@ class PointCloudSampler:
             end_time=time.time()
             diffusion_duration=end_t-start_t
             runtime=-start_time+end_time
-            print(f"Diffusion duration for stage {stage_seqnum} is {clip_duration} seconds")
+            print(f"Diffusion duration for stage {stage_seqnum} is {diffusion_duration} seconds")
             print(f"runtime for stage {stage_seqnum} is {runtime} seconds")
             gpu_memory = get_gpu_memory_usage()
             print(f"total gpu memory usage when stage {stage_seqnum} finishes is {gpu_memory} MiB")
