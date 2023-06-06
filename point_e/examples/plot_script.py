@@ -20,7 +20,7 @@ def main():
     
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=12,loc='lower right')
     plt.grid(True)
     plt.savefig('./point-e-mem-plot.png')
     plt.show()
