@@ -3,8 +3,11 @@ import json
 
 def main():
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json','base1B-out.json']
-    file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json']
-    label_dict={'base40M-textvec-out.json':'base40M, text-only','base40M-out.json':'base40M','base300M-out.json':'base300M'}
+    # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json']
+    # label_dict={'base40M-textvec-out.json':'base40M, text-only','base40M-out.json':'base40M, image-based','base300M-out.json':'base300M, image-based'}
+    file_list=['base40M-textvec1.json','base40M-img.json','base300M-img.json']
+    label_dict={'base40M-textvec1.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
+    plt.figure(figsize=(10,6))
     for file_name in file_list:
         # Read the contents of the file
         with open(file_name, "r") as file:
@@ -18,13 +21,22 @@ def main():
         measured_val = [m for _, m in data]
         plt.plot(timestamps, measured_val,label=label_dict[file_name],linewidth=3)
     
-    plt.scatter(46.63408136367798, 2891,c='black',s=20,zorder=10,marker='s')
-    plt.scatter(44.72880721092224, 2891,c='black',s=20,zorder=10,marker='s')
-    plt.scatter(139.16160225868225, 4957,c='black',s=20,zorder=10,marker='s')
+    dot_size=100
+    # plt.scatter(46.63408136367798, 2891,c='black',s=dot_size,zorder=10,marker='s')
+    # plt.scatter(44.72880721092224, 2891,c='black',s=dot_size,zorder=10,marker='s')
+    # plt.scatter(139.16160225868225, 4957,c='black',s=dot_size,zorder=10,marker='s')
     
-    plt.scatter(59.079631090164185, 3215,c='black',s=20,zorder=10,marker='^')
-    plt.scatter(67.021803855896, 3633,c='black',s=20,zorder=10,marker='^')
-    plt.scatter(241.634019613266, 5841,c='black',s=20,zorder=10,marker='^')
+    # plt.scatter(59.079631090164185, 3215,c='black',s=dot_size,zorder=10,marker='^')
+    # plt.scatter(67.021803855896, 3633,c='black',s=dot_size,zorder=10,marker='^')
+    # plt.scatter(241.634019613266, 5841,c='black',s=dot_size,zorder=10,marker='^')
+    
+    plt.scatter(69.89680123329163, 2891,c='black',s=dot_size,zorder=10,marker='s')
+    plt.scatter(51.2328941822052, 2891,c='black',s=dot_size,zorder=10,marker='s')
+    plt.scatter(66.9548909664154, 4969,c='black',s=dot_size,zorder=10,marker='s')
+    
+    plt.scatter(83.50793528556824, 3215,c='black',s=dot_size,zorder=10,marker='^')
+    plt.scatter(71.23209023475647, 3531,c='black',s=dot_size,zorder=10,marker='^')
+    plt.scatter(148.12104558944702, 6043,c='black',s=dot_size,zorder=10,marker='^')
     
     # x_point=42.38297986984253
     # y_point=2891
@@ -42,9 +54,10 @@ def main():
     #         head_length=10)  # Length of the arrowhead
 
 
-    plt.xticks(fontsize=12)
-    plt.yticks(fontsize=12)
-    plt.legend(fontsize=12,loc='lower right')
+    plt.xlim(0,250)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.legend(fontsize=20,loc='lower right')
     plt.grid(True)
     plt.savefig('./point-e-mem-plot.png')
     plt.show()
