@@ -133,7 +133,7 @@ class PointCloudSampler:
         ):
             # print(f"start timing for stage {stage_seqnum}")
             start_time=time.time()
-            prompt=model_kwargs['texts'][0]
+            # prompt=model_kwargs['texts'][0]
             stage_model_kwargs = model_kwargs.copy()
             if stage_key_filter != "*":
                 use_keys = set(stage_key_filter.split(","))
@@ -198,7 +198,7 @@ class PointCloudSampler:
                 yield samples
             # print(f"end timing for stage {stage_seqnum}")
             if stage_seqnum==2:
-                time_record[prompt]['base_end']=time.time()
+                time_record[time_record['current_id']]['base_end']=time.time()
             end_t=time.time()
             end_time=time.time()
             diffusion_duration=end_t-start_t

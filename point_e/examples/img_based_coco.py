@@ -1,3 +1,4 @@
+from PIL import Image
 import torch
 from tqdm.auto import tqdm
 
@@ -13,6 +14,10 @@ import matplotlib.pyplot as plt
 import threading
 import time
 import json
+import tempfile
+import shutil
+import os
+import urllib.request
 
 def get_gpu_memory_usage():
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,nounits,noheader'])
@@ -170,76 +175,86 @@ def main():
     
     # Specify the path to the JSON file
     file_path = './coco_data/captions_val2014_fakecap_results.json'
-
+    img_file_path = './coco_data/captions_val2014.json'
     # Open the JSON file and load its contents as a dictionary
     with open(file_path, 'r') as file:
         coco_data = json.load(file)
+    with open(img_file_path, 'r') as file:
+        coco_img_data = json.load(file)
     
     data_count=0
-    
-    for data in coco_data:
-        if data_count>=3:
-            base_latency=0
-            upsampling_latency=0
-            for key in time_record:
-                time_record[key]['base_latency']=time_record[key]['base_end']-time_record[key]['base_begin']
-                base_latency+=time_record[key]['base_latency']
-                time_record[key]['upsampling_latency']=time_record[key]['all_end']-time_record[key]['base_end']
-                upsampling_latency+=time_record[key]['upsampling_latency']
-            base_latency=base_latency/data_count
-            upsampling_latency=upsampling_latency/data_count
-            print(time_record)
-            print(f"base_latency={base_latency}")
-            print(f"upsampling_latency={upsampling_latency}")
-            break
-        
-        time_record['current_id']=data['image_id']
-        
-        data_count+=1
-        
-        # Set a prompt to condition on.
-        # prompt = 'a red motorcycle'
-        prompt = data['caption']
-        
-        if gpu_mode:
-            print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")
-            print("start diffusion")
-        
-        time_record[time_record['current_id']]={}
-        time_record[time_record['current_id']]['base_begin']=time.time()
-        
-        # Produce a sample from the model.
-        samples = None
-        for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(texts=[prompt]))):
-            samples = x
+    with tempfile.TemporaryDirectory() as temp_dir:
+        print("Temporary directory created:", temp_dir)
+        for data in coco_img_data['images']:
+            if data_count>=3:
+                base_latency=0
+                upsampling_latency=0
+                for key in time_record:
+                    time_record[key]['base_latency']=time_record[key]['base_end']-time_record[key]['base_begin']
+                    base_latency+=time_record[key]['base_latency']
+                    time_record[key]['upsampling_latency']=time_record[key]['all_end']-time_record[key]['base_end']
+                    upsampling_latency+=time_record[key]['upsampling_latency']
+                base_latency=base_latency/data_count
+                upsampling_latency=upsampling_latency/data_count
+                print(time_record)
+                print(f"base_latency={base_latency}")
+                print(f"upsampling_latency={upsampling_latency}")
+                break
+
+            data_count+=1
             
-        time_record[time_record['current_id']]['all_end']=time.time()
-        
-        if gpu_mode:
-            old_gpu_memory=gpu_memory
-            gpu_memory = get_gpu_memory_usage()
-            diffusion_gpu_memory = gpu_memory-old_gpu_memory
-            print(f"GPU Memory Usage for Diffusion: {diffusion_gpu_memory} MiB")
-        
-        pc = sampler.output_to_point_clouds(samples)[0]
-        
-        # fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
-        
-        if gpu_mode:
-            gpu_memory = get_gpu_memory_usage()
-            print(f"Total GPU Memory Usage: {gpu_memory} MiB")
+            time_record['current_id']=data['id']
+            img_url=data['url']
+            filename = os.path.basename(img_url)
+            image_path = os.path.join(temp_dir, filename)
+            urllib.request.urlretrieve(img_url, image_path)
+            img = Image.open(image_path)
             
-            gpu_moniter.end_monitor()
-            print("Total GPU Memory Usage")
-            gpu_moniter.mem_plot()
-            print("GPU Utilization")
-            gpu_moniter.mem_plot('util')
-            print("Volatile GPU Memory Usage")
-            gpu_moniter.mem_plot('vol')
-            print("GPU Power Consumption")
-            gpu_moniter.mem_plot('power')
-            # print("ecc GPU Memory Usage")
-            # gpu_moniter.mem_plot('ecc')
+            # Set a prompt to condition on.
+            # prompt = 'a red motorcycle'
+            # prompt = data['caption']
+            
+            if gpu_mode:
+                print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")
+                print("start diffusion")
+            
+            time_record[time_record['current_id']]={}
+            time_record[time_record['current_id']]['base_begin']=time.time()
+            
+            # Produce a sample from the model.
+            samples = None
+
+            for x in tqdm(sampler.sample_batch_progressive(batch_size=1, model_kwargs=dict(images=[img]))):
+                samples = x
+                
+            time_record[time_record['current_id']]['all_end']=time.time()
+            
+            if gpu_mode:
+                old_gpu_memory=gpu_memory
+                gpu_memory = get_gpu_memory_usage()
+                diffusion_gpu_memory = gpu_memory-old_gpu_memory
+                print(f"GPU Memory Usage for Diffusion: {diffusion_gpu_memory} MiB")
+            
+            pc = sampler.output_to_point_clouds(samples)[0]
+            
+            # fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
+            os.remove(image_path)
+            
+            if gpu_mode:
+                gpu_memory = get_gpu_memory_usage()
+                print(f"Total GPU Memory Usage: {gpu_memory} MiB")
+                
+                gpu_moniter.end_monitor()
+                print("Total GPU Memory Usage")
+                gpu_moniter.mem_plot()
+                print("GPU Utilization")
+                gpu_moniter.mem_plot('util')
+                print("Volatile GPU Memory Usage")
+                gpu_moniter.mem_plot('vol')
+                print("GPU Power Consumption")
+                gpu_moniter.mem_plot('power')
+                # print("ecc GPU Memory Usage")
+                # gpu_moniter.mem_plot('ecc')
 
 if __name__ == "__main__":
     main()
