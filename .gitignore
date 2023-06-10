@@ -5,5 +5,7 @@ point_e_model_cache/
 .DS_Store
 /env
 *.png
-*.json
+# *.json
 *.txt
+/plot_data
+/old

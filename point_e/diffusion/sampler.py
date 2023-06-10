@@ -16,6 +16,8 @@ import time
 import subprocess
 import re
 
+time_record={}
+
 def get_gpu_memory_usage():
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,nounits,noheader'])
     memory_used = re.findall(r'\d+', output.decode('utf-8'))
@@ -131,6 +133,7 @@ class PointCloudSampler:
         ):
             # print(f"start timing for stage {stage_seqnum}")
             start_time=time.time()
+            prompt=model_kwargs['texts'][0]
             stage_model_kwargs = model_kwargs.copy()
             if stage_key_filter != "*":
                 use_keys = set(stage_key_filter.split(","))
@@ -194,6 +197,8 @@ class PointCloudSampler:
                 # print("size of samples_it",len(samples_it))
                 yield samples
             # print(f"end timing for stage {stage_seqnum}")
+            if stage_seqnum==2:
+                time_record[prompt]['base_end']=time.time()
             end_t=time.time()
             end_time=time.time()
             diffusion_duration=end_t-start_t
