@@ -129,11 +129,64 @@ shapes = set([d[3] for d in data])
 
 # Create a colormap based on the number of unique shapes
 # cmap = ListedColormap(plt.cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
-cmap = ListedColormap(cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
+# cmap = ListedColormap(cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
+# Define the "tab20" colormap
+cmap = plt.get_cmap("tab20")
 
+i=0
 for x, y, label, marker, color in data:
     shape_index = list(shapes).index(marker)
-    ax.scatter(x, y, label=label, marker=marker, c=[shape_index], cmap=cmap, vmin=0, vmax=len(shapes), edgecolors='black')
+    ax.scatter(x, y, label=label, marker=marker, color=cmap(i), edgecolors='black',zorder=10)
+    i+=1
+
+
+# (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue')
+# (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red')
+# (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green')
+ax.plot([3.1, 5.2], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+ax.plot([9.7, 5.2], [0.365, 0.336], color='black', linestyle='-', zorder=5)
+
+# (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue')
+# (1, 0.365, 'Point-E (40M, V100)', 'o', 'red')
+# (25/60, 0.336, 'Point-E (300M, text-only, V100)', 'o', 'blue')
+
+ax.plot([16/60, 25/60], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+ax.plot([1, 25/60], [0.365, 0.336], color='black', linestyle='-',zorder=5)
+
+# (69/60, 0.154, 'Point-E (40M, text-only, T4)', 'o', 'green'),
+# (3.3, 0.365, 'Point-E (40M, T4)', 'o', 'blue'),
+# (1.9, 0.336, 'Point-E (300M, text-only, T4)', 'o', 'red'),
+
+ax.plot([69/60, 1.9], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+ax.plot([3.3, 1.9], [0.365, 0.336], color='black', linestyle='-', zorder=5)
+
+# import numpy as np
+
+# # Generate some random data
+# np.random.seed(42)
+# x = np.random.rand(20)
+# y = np.random.rand(20)
+
+# # Generate an array of indices to select colors from the colormap
+# colors = np.arange(20)
+
+# # Plot scatter points with distinct colors
+# plt.scatter(x, y, c=colors, cmap=cmap)
+
+# # Add colorbar for reference
+# plt.colorbar()
+
+# # Generate some random data
+# np.random.seed(42)
+# x = np.random.rand(100)
+# y = np.random.rand(100)
+# colors = np.random.rand(100)
+
+# # Plot scatter points with different colors
+# plt.scatter(x, y, c=colors)
+
+# # Add colorbar for reference
+# plt.colorbar()
 
 ax.set_yscale('linear')
 ax.set_xscale('log')
