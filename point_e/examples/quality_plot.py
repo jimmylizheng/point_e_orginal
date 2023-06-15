@@ -102,6 +102,145 @@ scatter_order=10
 # ax.scatter(5.2,0.336,s=sz,label="Point-E (300M, text-only, Jetson)", edgecolor=edge_c, zorder=scatter_order)
 # ax.scatter(2.5,0.378,s=sz,label="Shap-E (300M, text-only, Jetson)", edgecolor=edge_c, zorder=scatter_order, marker='s')
 
+# data = [
+#     (17, 0.678, 'CLIP-Mesh (V100)', 'D', 'blue'),
+#     (200*60, 0.786, 'DreamFields (V100)', '^', 'red'),
+#     (12*60, 0.751, 'DreamFusion (V100)', 'd', 'green'),
+#     (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue'),
+#     (1, 0.365, 'Point-E (40M, V100)', 'o', 'red'),
+#     (1.2, 0.403, 'Point-E (300M, V100)', 'o', 'green'),
+#     (25/60, 0.336, 'Point-E (300M, text-only, V100)', 'o', 'blue'),
+#     (1.5, 0.411, 'Point-E (1B, V100)', 'o', 'red'),
+#     (1.0, 0.411, 'Shap-E (300M, V100)', 's', 'green'),
+#     (13/60, 0.378, 'Shap-E (300M, text-only, V100)', 's', 'blue'),
+#     (52, 0.678, 'CLIP-Mesh (T4)', 'D', 'red'),
+#     (69/60, 0.154, 'Point-E (40M, text-only, T4)', 'o', 'green'),
+#     (3.3, 0.365, 'Point-E (40M, T4)', 'o', 'blue'),
+#     (1.9, 0.336, 'Point-E (300M, text-only, T4)', 'o', 'red'),
+#     (49/60, 0.378, 'Shap-E (300M, text-only, T4)', 's', 'green'),
+#     (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue'),
+#     (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red'),
+#     (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green'),
+#     (2.5, 0.378, 'Shap-E (300M, text-only, Jetson)', 's', 'blue'),
+# ]
+
+data = [
+    (17, 0.678, 'CLIP-Mesh', 'D', 'violet',1),
+    (200*60, 0.786, 'DreamFields', '^', 'yellow',1),
+    (12*60, 0.751, 'DreamFusion', 'd', 'green',1),
+    (16/60, 0.154, 'Point-E (40M, text-only)', 'o', 'skyblue',0),
+    (1, 0.365, 'Point-E (40M)', 'o', 'skyblue',1),
+    (1.2, 0.403, 'Point-E (300M)', 'o', 'orange',1),
+    (25/60, 0.336, 'Point-E (300M, text-only)', 'o', 'orange',0),
+    (1.5, 0.411, 'Point-E (1B)', 'o', 'red',1),
+    (1.0, 0.411, 'Shap-E (300M)', 's', 'orange',1),
+    (13/60, 0.378, 'Shap-E (300M, text-only)', 's', 'orange',0),
+    (52, 0.678, 'CLIP-Mesh', 'D', 'violet',1),
+    (69/60, 0.154, 'Point-E (40M, text-only)', 'o', 'skyblue',0),
+    (3.3, 0.365, 'Point-E (40M)', 'o', 'skyblue',1),
+    (1.9, 0.336, 'Point-E (300M, text-only)', 'o', 'orange',0),
+    (49/60, 0.378, 'Shap-E (300M, text-only)', 's', 'orange',0),
+    (3.1, 0.154, 'Point-E (40M, text-only)', 'o', 'skyblue',0),
+    (9.7, 0.365, 'Point-E (40M)', 'o', 'skyblue',1),
+    (5.2, 0.336, 'Point-E (300M, text-only)', 'o', 'orange',0),
+    (2.5, 0.378, 'Shap-E (300M, text-only)', 's', 'orange',0),
+]
+
+# Get unique shapes
+# shapes = set([d[3] for d in data])
+
+
+
+# Create a colormap based on the number of unique shapes
+# cmap = ListedColormap(plt.cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
+# cmap = ListedColormap(cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
+# Define the "tab20" colormap
+cmap = plt.get_cmap("tab20")
+
+x_list=[]
+y_list=[]
+for x, y, label, marker, color, line_bool in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "Point-E (40M, text-only)" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="Point-E (40M, text-only)", marker='o', color="skyblue",edgecolors='black',linewidths=0, zorder=10,s=50)
+
+x_list=[]
+y_list=[]
+for x, y, label, marker, color, line_bool in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "Point-E (300M, text-only)" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="Point-E (300M, text-only)", marker='o', color="orange",edgecolors='black',linewidths=0, zorder=10,s=50)
+
+x_list=[]
+y_list=[]
+for x, y, label, marker, color, line_bool in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "Shap-E (300M, text-only)" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="Shap-E (300M, text-only)", marker='s', color="orange",edgecolors='black',linewidths=0, zorder=10,s=50)
+
+ax.scatter(1.0, 0.411, label="Shap-E (300M)", marker='s', color="orange",edgecolors='black',linewidths=1, zorder=10,s=50)
+
+x_list=[]
+y_list=[]
+for x, y, label, marker, color, line_bool in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "Point-E (40M)" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="Point-E (40M)", marker='o', color="skyblue",edgecolors='black',linewidths=1, zorder=10,s=50)
+
+data1 = [
+    (1.2, 0.403, 'Point-E (300M)', 'o', 'orange',1),
+    (1.5, 0.411, 'Point-E (1B)', 'o', 'red',1),
+    # (1.0, 0.411, 'Shap-E (300M)', 's', 'orange',1),
+    (200*60, 0.786, 'DreamFields', '^', 'yellow',1),
+    (12*60, 0.751, 'DreamFusion', 'd', 'green',1),
+]
+
+# i=0
+for x, y, label, marker, color, line_bool in data1:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    ax.scatter(x, y, label=label, marker=marker, color=color, edgecolors='black', linewidths=line_bool,zorder=10,s=50)
+    # i+=1
+    
+    
+x_list=[]
+y_list=[]
+for x, y, label, marker, color, line_bool in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "CLIP-Mesh" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="CLIP-Mesh", marker='D', color="violet",edgecolors='black',linewidths=1, zorder=10,s=50)
+
 data = [
     (17, 0.678, 'CLIP-Mesh (V100)', 'D', 'blue'),
     (200*60, 0.786, 'DreamFields (V100)', '^', 'red'),
@@ -124,41 +263,51 @@ data = [
     (2.5, 0.378, 'Shap-E (300M, text-only, Jetson)', 's', 'blue'),
 ]
 
-# Get unique shapes
-shapes = set([d[3] for d in data])
-
-# Create a colormap based on the number of unique shapes
-# cmap = ListedColormap(plt.cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
-# cmap = ListedColormap(cm.get_cmap('tab10')(np.linspace(0, 1, len(shapes))))
-# Define the "tab20" colormap
-cmap = plt.get_cmap("tab20")
-
-i=0
+x_list=[]
+y_list=[]
 for x, y, label, marker, color in data:
-    shape_index = list(shapes).index(marker)
-    ax.scatter(x, y, label=label, marker=marker, color=cmap(i), edgecolors='black',zorder=10)
-    i+=1
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "T4" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
 
+x_list=[]
+y_list=[]
+for x, y, label, marker, color in data:
+    # shape_index = list(shapes).index(marker)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(i), zorder=10)
+    # ax.scatter(x, y, label=label, marker=marker, color=cmap(colori), edgecolors='black', linewidths=line_bool,zorder=10)
+    if "Jetson" in label:
+        x_list.append(x)
+        y_list.append(y)
+        # ax.scatter(x, y, label="T4 GPU", marker='+', color="black", zorder=15,s=35)
+    # i+=1
+ax.scatter(x_list, y_list, label="Jetson AGX Orin", marker='x', color="black", zorder=15,s=20)
 
-# (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue')
-# (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red')
-# (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green')
-ax.plot([3.1, 5.2], [0.154, 0.336], color='black', linestyle='-', zorder=5)
-ax.plot([9.7, 5.2], [0.365, 0.336], color='black', linestyle='-', zorder=5)
+# # (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue')
+# # (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red')
+# # (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green')
+# ax.plot([3.1, 5.2], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+# ax.plot([9.7, 5.2], [0.365, 0.336], color='black', linestyle='-', zorder=5)
 
-# (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue')
-# (1, 0.365, 'Point-E (40M, V100)', 'o', 'red')
-# (25/60, 0.336, 'Point-E (300M, text-only, V100)', 'o', 'blue')
+# # (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue')
+# # (1, 0.365, 'Point-E (40M, V100)', 'o', 'red')
+# # (25/60, 0.336, 'Point-E (300M, text-only, V100)', 'o', 'blue')
 
-ax.plot([16/60, 25/60], [0.154, 0.336], color='black', linestyle='-', zorder=5)
-ax.plot([1, 25/60], [0.365, 0.336], color='black', linestyle='-',zorder=5)
+# ax.plot([16/60, 25/60], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+# ax.plot([1, 25/60], [0.365, 0.336], color='black', linestyle='-',zorder=5)
 
-# (69/60, 0.154, 'Point-E (40M, text-only, T4)', 'o', 'green'),
-# (3.3, 0.365, 'Point-E (40M, T4)', 'o', 'blue'),
-# (1.9, 0.336, 'Point-E (300M, text-only, T4)', 'o', 'red'),
+# # (69/60, 0.154, 'Point-E (40M, text-only, T4)', 'o', 'green'),
+# # (3.3, 0.365, 'Point-E (40M, T4)', 'o', 'blue'),
+# # (1.9, 0.336, 'Point-E (300M, text-only, T4)', 'o', 'red'),
 
-ax.plot([69/60, 1.9], [0.154, 0.336], color='black', linestyle='-', zorder=5)
-ax.plot([3.3, 1.9], [0.365, 0.336], color='black', linestyle='-', zorder=5)
+# ax.plot([69/60, 1.9], [0.154, 0.336], color='black', linestyle='-', zorder=5)
+# ax.plot([3.3, 1.9], [0.365, 0.336], color='black', linestyle='-', zorder=5)
 
 # import numpy as np
 
@@ -210,7 +359,7 @@ plt.grid(True, zorder=1)
 # ax.set_title('Plot with Logarithmic and Linear Scales')
 
 # Set the legend
-plt.legend(loc='lower left', bbox_to_anchor=(-0.09, 1.03),fontsize=12,ncol=2)
+plt.legend(loc='lower left', bbox_to_anchor=(-0.09, 1.03),fontsize=12,ncol=3)
 # plt.legend(loc='lower right',fontsize=12,ncol=2)
 
 # Set the colorbar to show the color mapping
