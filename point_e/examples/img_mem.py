@@ -1,4 +1,4 @@
-# gpu eval for image to 3d
+# gcp gpu eval for image to 3d
 from PIL import Image
 import torch
 from tqdm.auto import tqdm
@@ -135,7 +135,7 @@ def main():
     init_t=time.time()
     gpu_mode=True
     if gpu_mode:
-        gpu_moniter=GPU_moniter(1)
+        gpu_moniter=GPU_moniter(0.1)
         gpu_memory = get_gpu_memory_usage()
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -244,11 +244,11 @@ def main():
     sys.stdout = sys.__stdout__
     
     gpu_moniter.end_monitor()
-    if gpu_mode:
-        gpu_memory = get_gpu_memory_usage()
-        print(f"Total GPU Memory Usage: {gpu_memory} MiB")
+    # if gpu_mode:
+    #     gpu_memory = get_gpu_memory_usage()
+    #     print(f"Total GPU Memory Usage: {gpu_memory} MiB")
         
-        gpu_moniter.end_monitor()
+    #     gpu_moniter.end_monitor()
         # print("Total GPU Memory Usage")
         # gpu_moniter.mem_plot()
         # print("GPU Utilization")

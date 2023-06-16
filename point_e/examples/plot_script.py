@@ -5,8 +5,8 @@ def main():
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json','base1B-out.json']
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json']
     # label_dict={'base40M-textvec-out.json':'base40M, text-only','base40M-out.json':'base40M, image-based','base300M-out.json':'base300M, image-based'}
-    file_list=['base40M-textvec1.json','base40M-img.json','base300M-img.json']
-    label_dict={'base40M-textvec1.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
+    file_list=['base40M-textvec.json','base40M-img.json','base300M-img.json']
+    label_dict={'base40M-textvec.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
     plt.figure(figsize=(10,6))
     for file_name in file_list:
         # Read the contents of the file
@@ -30,13 +30,13 @@ def main():
     # plt.scatter(67.021803855896, 3633,c='black',s=dot_size,zorder=10,marker='^')
     # plt.scatter(241.634019613266, 5841,c='black',s=dot_size,zorder=10,marker='^')
     
-    plt.scatter(69.89680123329163, 2891,c='black',s=dot_size,zorder=10,marker='s')
-    plt.scatter(51.2328941822052, 2891,c='black',s=dot_size,zorder=10,marker='s')
-    plt.scatter(66.9548909664154, 4969,c='black',s=dot_size,zorder=10,marker='s')
+    plt.scatter(26.901078939437866, 2773,c='black',s=dot_size,zorder=10,marker='s')
+    plt.scatter(25.969326496124268, 2773,c='black',s=dot_size,zorder=10,marker='s')
+    plt.scatter(27.870773315429688, 4851,c='black',s=dot_size,zorder=10,marker='s')
     
-    plt.scatter(83.50793528556824, 3215,c='black',s=dot_size,zorder=10,marker='^')
-    plt.scatter(71.23209023475647, 3531,c='black',s=dot_size,zorder=10,marker='^')
-    plt.scatter(148.12104558944702, 6043,c='black',s=dot_size,zorder=10,marker='^')
+    plt.scatter(41.51578664779663, 3409,c='black',s=dot_size,zorder=10,marker='^')
+    plt.scatter(36.24272418022156, 3119,c='black',s=dot_size,zorder=10,marker='^')
+    plt.scatter(110.50519394874573, 5719,c='black',s=dot_size,zorder=10,marker='^')
     
     # x_point=42.38297986984253
     # y_point=2891
@@ -54,7 +54,7 @@ def main():
     #         head_length=10)  # Length of the arrowhead
 
 
-    plt.xlim(0,250)
+    plt.xlim(0,220)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.legend(fontsize=20,loc='lower right')

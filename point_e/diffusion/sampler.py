@@ -197,8 +197,8 @@ class PointCloudSampler:
                 # print("size of samples_it",len(samples_it))
                 yield samples
             # print(f"end timing for stage {stage_seqnum}")
-            if stage_seqnum==2:
-                time_record[time_record['current_id']]['base_end']=time.time()
+            # if stage_seqnum==2:
+            #     time_record[time_record['current_id']]['base_end']=time.time()
             end_t=time.time()
             end_time=time.time()
             diffusion_duration=end_t-start_t

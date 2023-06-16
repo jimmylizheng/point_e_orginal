@@ -1,3 +1,4 @@
+# gcp
 import torch
 from tqdm.auto import tqdm
 
@@ -128,7 +129,7 @@ class GPU_moniter:
 
 def main():
     # Open the file in write mode
-    sys.stdout = open('base3000M-textvec.txt', 'w')
+    sys.stdout = open('base40M-textvec.txt', 'w')
     init_t=time.time()
     gpu_mode=True
     if gpu_mode:
