@@ -14,3 +14,4 @@ point_e_model_cache/
 base300M-img.json
 base40M-img.json
 base40M-textvec.json
+*.out
