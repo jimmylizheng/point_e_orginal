@@ -6,7 +6,9 @@ def main():
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json']
     # label_dict={'base40M-textvec-out.json':'base40M, text-only','base40M-out.json':'base40M, image-based','base300M-out.json':'base300M, image-based'}
     file_list=['base40M-textvec.json','base40M-img.json','base300M-img.json']
-    label_dict={'base40M-textvec.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
+    label_dict={'base40M-textvec.json':'40M, text-only','base40M-img.json':'40M','base300M-img.json':'300M'}
+    # file_list=['base40M-textvec-tmp.json','base40M-textvec.json','base40M-img.json','base300M-img.json']
+    # label_dict={'base40M-textvec-tmp.json':'40M, text-only, tmp','base40M-textvec.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
     plt.figure(figsize=(10,6))
     for file_name in file_list:
         # Read the contents of the file
@@ -55,9 +57,9 @@ def main():
 
 
     plt.xlim(0,220)
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
-    plt.legend(fontsize=20,loc='lower right')
+    plt.xticks(fontsize=27)
+    plt.yticks(fontsize=27)
+    plt.legend(fontsize=25,loc='lower right')
     plt.grid(True)
     plt.savefig('./point-e-mem-plot.png')
     plt.show()

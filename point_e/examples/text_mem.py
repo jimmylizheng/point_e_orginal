@@ -114,7 +114,7 @@ class GPU_moniter:
         json_str = json.dumps(output_dict)
 
         # Write the JSON string to a file
-        with open("base40M-textvec.json", "w") as file:
+        with open("base40M-textvec-tmp.json", "w") as file:
             file.write(json_str)
         
     def mem_plot(self, mode='mem'):
@@ -129,7 +129,7 @@ class GPU_moniter:
 
 def main():
     # Open the file in write mode
-    sys.stdout = open('base40M-textvec.txt', 'w')
+    sys.stdout = open('base40M-textvec-tmp.txt', 'w')
     init_t=time.time()
     gpu_mode=True
     if gpu_mode:
@@ -216,6 +216,7 @@ def main():
         num_points=[1024, 4096 - 1024],
         aux_channels=['R', 'G', 'B'],
         guidance_scale=[3.0, 0.0],
+        #  guidance_scale=[3.0, 3.0],
         model_kwargs_key_filter=('texts', ''), # Do not condition the upsampler at all
     )
 

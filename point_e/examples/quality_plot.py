@@ -289,11 +289,17 @@ for x, y, label, marker, color in data:
     # i+=1
 ax.scatter(x_list, y_list, label="Jetson AGX Orin", marker='x', color="black", zorder=15,s=20)
 
-# # (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue')
-# # (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red')
-# # (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green')
-# ax.plot([3.1, 5.2], [0.154, 0.336], color='black', linestyle='-', zorder=5)
-# ax.plot([9.7, 5.2], [0.365, 0.336], color='black', linestyle='-', zorder=5)
+# (3.1, 0.154, 'Point-E (40M, text-only, Jetson)', 'o', 'blue')
+# (9.7, 0.365, 'Point-E (40M, Jetson)', 'o', 'red')
+# (5.2, 0.336, 'Point-E (300M, text-only, Jetson)', 'o', 'green')
+# (1, 0.365, 'Point-E (40M, V100)', 'o', 'red'),
+# (1.2, 0.403, 'Point-E (300M, V100)', 'o', 'green'),
+# (1.5, 0.411, 'Point-E (1B, V100)', 'o', 'red'),
+# (25/60, 0.336, 'Point-E (300M, text-only, V100)', 'o', 'blue'),
+# (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue'),
+ax.plot([1, 1.2], [0.365, 0.403], color='black', linestyle='-', zorder=5)
+ax.plot([1.5, 1.2], [0.411, 0.403], color='black', linestyle='-', zorder=5)
+ax.plot([16/60, 25/60], [0.154, 0.336], color='black', linestyle='-', zorder=5)
 
 # # (16/60, 0.154, 'Point-E (40M, text-only, V100)', 'o', 'blue')
 # # (1, 0.365, 'Point-E (40M, V100)', 'o', 'red')
@@ -339,6 +345,7 @@ ax.scatter(x_list, y_list, label="Jetson AGX Orin", marker='x', color="black", z
 
 ax.set_yscale('linear')
 ax.set_xscale('log')
+# ax.set_xscale('linear')
 
 # plt.yscale('linear')
 # plt.xscale('log')
@@ -349,7 +356,8 @@ ax.set_xscale('log')
 
 # plt.set_ylim(0,1)
 
-plt.ylim(0,1)
+plt.ylim(0,0.8)
+plt.xlim(0.1,100000/5)
 
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)

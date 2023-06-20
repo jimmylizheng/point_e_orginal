@@ -11,6 +11,8 @@ point_e_model_cache/
 /old
 *g.json
 *c.json
+*0.json
+*p.json
 base300M-img.json
 base40M-img.json
 base40M-textvec.json
