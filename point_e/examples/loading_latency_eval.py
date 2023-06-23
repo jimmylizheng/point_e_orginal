@@ -23,36 +23,100 @@ def get_gpu_memory_usage():
 
 def main():
     # Open the file in write mode
-    # sys.stdout = open('loading-base40M-mix.txt', 'a')
-    init_t=time.time()
+    sys.stdout = open('test.txt', 'a')
+    # init_t=time.time()
 
-    print(f"0b{get_gpu_memory_usage()}")
+    # print(f"0b{get_gpu_memory_usage()}")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    init_t=time.time()
     
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
     base_name = 'base300M' # use base300M or base1B for better results
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
-    base_model.eval()
-    base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
-    base_model.load_state_dict(load_checkpoint(base_name, device))
+    print(f"base_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
     
-    print(f"b{get_gpu_memory_usage()}")
-    print(f"b{-init_t+time.time()}")
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
+    base_model.eval()
+    print(f"base_eval:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
+    base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
+    print(f"base_diff_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    # print(f"bp{get_gpu_memory_usage()}")
+    
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
+    base_model.load_state_dict(load_checkpoint(base_name, device))
+    print(f"base_dict:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # print(f"bp0{get_gpu_memory_usage()}")
+    print(f"b{-init_t+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
 
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
     upsampler_model = model_from_config(MODEL_CONFIGS['upsample'], device)
+    print(f"up_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
     upsampler_model.eval()
+    print(f"up_eval:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
     upsampler_diffusion = diffusion_from_config(DIFFUSION_CONFIGS['upsample'])
+    print(f"up_diff_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+
+    # print(f"b1p{get_gpu_memory_usage()}")
 
     # base_model.load_state_dict(load_checkpoint(base_name, device))
-
-    upsampler_model.load_state_dict(load_checkpoint('upsample', device))
     
-    print(f"e{get_gpu_memory_usage()}")
-    print(f"e{-init_t+time.time()}")
-    # # Remember to close the file to ensure everything is saved
-    # sys.stdout.close()
+    # print(f"b2p{get_gpu_memory_usage()}")
 
-    # # Reset the stdout to its default value (the console)
-    # sys.stdout = sys.__stdout__
+    t_st=time.time()
+    g_st=get_gpu_memory_usage()
+    upsampler_model.load_state_dict(load_checkpoint('upsample', device))
+    print(f"up_dict:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # print(f"e{get_gpu_memory_usage()}")
+    # print(f"e{-init_t+time.time()}")
+    print(f"{-init_t+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # base_name = 'base300M' # use base300M or base1B for better results
+    # base_model = model_from_config(MODEL_CONFIGS[base_name], device)
+    # print(f"base_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # base_model.eval()
+    # print(f"base_eval:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
+    # print(f"base_diff_config:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    # # print(f"bp{get_gpu_memory_usage()}")
+    
+    # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # base_model.load_state_dict(load_checkpoint(base_name, device))
+    # print(f"base_dict:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    # # print(f"bp0{get_gpu_memory_usage()}")
+    # print(f"b{-init_t+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    
+    print(f"total gpu: {get_gpu_memory_usage()}")
+    
+    # Remember to close the file to ensure everything is saved
+    sys.stdout.close()
+
+    # Reset the stdout to its default value (the console)
+    sys.stdout = sys.__stdout__
     
 
 if __name__ == "__main__":
