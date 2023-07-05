@@ -1,4 +1,6 @@
-# gcp
+import os
+import numpy as np
+
 import torch
 from tqdm.auto import tqdm
 
@@ -13,8 +15,6 @@ import re
 import matplotlib.pyplot as plt
 import threading
 import time
-import sys
-import json
 
 def get_gpu_memory_usage():
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,nounits,noheader'])
@@ -52,11 +52,9 @@ def plot_measurement(data, x_label='Time (s)', y_label='Memory Usage (MiB)', tit
     measured_val = [m for _, m in data]
 
     plt.plot(timestamps, measured_val)
-    # plt.xlabel(x_label)
-    # plt.ylabel(y_label)
-    plt.yticks(weight='bold')
-    plt.xticks(weight='bold')
-    # plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
     plt.grid(True)
     plt.show()
     
@@ -85,12 +83,15 @@ class GPU_moniter:
             util_mem_usage = get_gpu_utilization()
             vol_mem_usage = get_volatile_gpu_memory()
             power_usage=get_gpu_power_consumption()
+            # gcc_mem_usage = get_ecc_memory()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
                 self.util_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
                 self.power_data.append((current_time, power_usage))
+                # self.ecc_mem_data.append((current_time, gcc_mem_usage))
+                # print(f'Time: {current_time:.2f}s, Memory Usage: {memory_usage} bytes')
             else:
                 print('Failed to retrieve GPU memory usage.')
 
@@ -104,18 +105,6 @@ class GPU_moniter:
         
         # Wait for the monitoring thread to complete
         self.monitor_thread.join()
-
-        output_dict={}
-        output_dict['mem']=self.memory_usage_data
-        output_dict['util']=self.util_data
-        output_dict['vol']=self.vol_mem_usage_data
-        output_dict['power']=self.power_data
-        # Serialize the dictionary to a JSON string
-        json_str = json.dumps(output_dict)
-
-        # Write the JSON string to a file
-        with open("tmp.json", "w") as file:
-            file.write(json_str)
         
     def mem_plot(self, mode='mem'):
         if mode=='mem':
@@ -126,21 +115,17 @@ class GPU_moniter:
             plot_measurement(self.vol_mem_usage_data)
         elif mode=='power':
             plot_measurement(self.power_data,'Time (s)','GPU Power Consumption (W)','GPU Power Consumption')
+        # elif mode=='ecc':
+            # plot_memory_usage(self.ecc_mem_data)
 
 def main():
-    # Open the file in write mode
-    sys.stdout = open('tmp.txt', 'w')
-    init_t=time.time()
-    gpu_mode=True
+    gpu_mode=False
     if gpu_mode:
-        gpu_moniter=GPU_moniter(0.1)
+        gpu_moniter=GPU_moniter(1)
         gpu_memory = get_gpu_memory_usage()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage before create base model: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
     print('creating base model...')
     base_name = 'base40M-textvec'
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
@@ -150,55 +135,27 @@ def main():
         if param.requires_grad:
             total_para_nums += param.numel()
     print(f"Total number of parameters for second stage is {total_para_nums}")
-    print(f"current time {time.time()-init_t}")
     
     base_model.eval()
     base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
 
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage after create base model: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
-
     print('creating upsample model...')
     upsampler_model = model_from_config(MODEL_CONFIGS['upsample'], device)
-    # old_gpu_memory=gpu_memory 
-    # gpu_memory = get_gpu_memory_usage()
-    # print(f"Total GPU Memory Usage for upsample model: {gpu_memory-old_gpu_memory} MiB")
-
+    
     total_para_nums = 0
     for param in upsampler_model.parameters():
         if param.requires_grad:
             total_para_nums += param.numel()
     print(f"Total number of parameters for third stage is {total_para_nums}")
-    print(f"current time {time.time()-init_t}")
     
     upsampler_model.eval()
     upsampler_diffusion = diffusion_from_config(DIFFUSION_CONFIGS['upsample'])
 
-    # old_gpu_memory=gpu_memory 
-    # gpu_memory = get_gpu_memory_usage()
-    # print(f"Total GPU Memory Usage for upsample model: {gpu_memory-old_gpu_memory} MiB")
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage after create upsampling model: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
-
     print('downloading base checkpoint...')
     base_model.load_state_dict(load_checkpoint(base_name, device))
-    # old_gpu_memory=gpu_memory 
-    # gpu_memory = get_gpu_memory_usage()
-    # print(f"Total GPU Memory Usage for base checkpoint: {gpu_memory-old_gpu_memory} MiB")
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage after create base checkpoint: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
 
     print('downloading upsampler checkpoint...')
     upsampler_model.load_state_dict(load_checkpoint('upsample', device))
-    # old_gpu_memory=gpu_memory 
-    # gpu_memory = get_gpu_memory_usage()
-    # print(f"Total GPU Memory Usage for upsampler checkpoint: {gpu_memory-old_gpu_memory} MiB")
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage after create upsampling checkpoint: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
     
     if gpu_mode:
         old_gpu_memory=gpu_memory
@@ -216,20 +173,14 @@ def main():
         num_points=[1024, 4096 - 1024],
         aux_channels=['R', 'G', 'B'],
         guidance_scale=[3.0, 0.0],
-        #  guidance_scale=[3.0, 3.0],
         model_kwargs_key_filter=('texts', ''), # Do not condition the upsampler at all
     )
-
-    gpu_memory = get_gpu_memory_usage()
-    print(f"Total GPU Memory Usage after setting sampler: {gpu_memory} MiB")
-    print(f"current time {time.time()-init_t}")
     
     # Set a prompt to condition on.
-    prompt = 'a corgi'
+    prompt = 'a red motorcycle'
     
     if gpu_mode:
         print(f"Total GPU Memory Usage before diffusion: {gpu_memory} MiB")
-        print(f"current time {time.time()-init_t}")
         print("start diffusion")
 
     # Produce a sample from the model.
@@ -238,38 +189,34 @@ def main():
         samples = x
         
     if gpu_mode:
-        # old_gpu_memory=gpu_memory
+        old_gpu_memory=gpu_memory
         gpu_memory = get_gpu_memory_usage()
-        # diffusion_gpu_memory = gpu_memory-old_gpu_memory
-        print(f"GPU Memory Usage after Diffusion: {gpu_memory} MiB")
-        print(f"current time {time.time()-init_t}")
+        diffusion_gpu_memory = gpu_memory-old_gpu_memory
+        print(f"GPU Memory Usage for Diffusion: {diffusion_gpu_memory} MiB")
     
     pc = sampler.output_to_point_clouds(samples)[0]
     # fig = plot_point_cloud(pc, grid_size=3, fixed_bounds=((-0.75, -0.75, -0.75),(0.75, 0.75, 0.75)))
     
-    # Remember to close the file to ensure everything is saved
-    sys.stdout.close()
-
-    # Reset the stdout to its default value (the console)
-    sys.stdout = sys.__stdout__
-
-    gpu_moniter.end_monitor()
-
-    # if gpu_mode:
-    #     gpu_memory = get_gpu_memory_usage()
-    #     print(f"Total GPU Memory Usage: {gpu_memory} MiB")
+    if gpu_mode:
+        gpu_memory = get_gpu_memory_usage()
+        print(f"Total GPU Memory Usage: {gpu_memory} MiB")
         
-    #     gpu_moniter.end_monitor()
-    #     print("Total GPU Memory Usage")
-    #     gpu_moniter.mem_plot()
-    #     print("GPU Utilization")
-    #     gpu_moniter.mem_plot('util')
-    #     print("Volatile GPU Memory Usage")
-    #     gpu_moniter.mem_plot('vol')
-    #     print("GPU Power Consumption")
-    #     gpu_moniter.mem_plot('power')
-    #     # print("ecc GPU Memory Usage")
-    #     # gpu_moniter.mem_plot('ecc')
+        gpu_moniter.end_monitor()
+        print("Total GPU Memory Usage")
+        gpu_moniter.mem_plot()
+        print("GPU Utilization")
+        gpu_moniter.mem_plot('util')
+        print("Volatile GPU Memory Usage")
+        gpu_moniter.mem_plot('vol')
+        print("GPU Power Consumption")
+        gpu_moniter.mem_plot('power')
+        # print("ecc GPU Memory Usage")
+        # gpu_moniter.mem_plot('ecc')
+
+    
 
 if __name__ == "__main__":
-    main()
+    with torch.autograd.profiler.profile(enabled=True, use_cuda=True, record_shapes=False, profile_memory=False) as prof:
+        main()
+    print(prof.table())
+    prof.export_chrome_trace('./profile.json')

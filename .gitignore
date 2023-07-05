@@ -18,3 +18,9 @@ base40M-img.json
 base40M-textvec.json
 *.out
 /target-linux-x64
+*.pt
+*.csv
+host-linux-x64/
+*.json
+*rep
+*.sqlite
