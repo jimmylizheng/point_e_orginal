@@ -35,11 +35,36 @@ def get_gpu_free_memory_usage():
 
 def main():
     # Open the file in write mode
-    sys.stdout = open('test.txt', 'a')
+    sys.stdout = open('loading-upsampler.txt', 'a')
     # init_t=time.time()
 
     # print(f"0b{get_gpu_memory_usage()}")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    
+    # base_name = 'base40M' # use base300M or base1B for better results
+    # base_model = model_from_config(MODEL_CONFIGS[base_name], device)
+    # base_model.load_state_dict(load_checkpoint(base_name, device))
+    # torch.save(base_model, 'base40_all.pt')
+    
+    # Get the amount of total memory in bytes
+    # total_memory = torch.cuda.get_device_properties(device).total_memory
+    # print(total_memory)
+    # t_st=time.time()
+    # base_name = 'base300M'
+    # base_model = model_from_config(MODEL_CONFIGS[base_name], device) 
+    # base_model.eval()
+    # base_diffusion = diffusion_from_config(DIFFUSION_CONFIGS[base_name])
+    # base_model.load_state_dict(load_checkpoint(base_name, device))
+    # print(f"{-t_st+time.time()} seconds")
+
+    t_st=time.time()
+    # print('creating upsample model...')
+    upsampler_model = model_from_config(MODEL_CONFIGS['upsample'], device)
+    upsampler_model.eval()
+    upsampler_diffusion = diffusion_from_config(DIFFUSION_CONFIGS['upsample'])
+    upsampler_model.load_state_dict(load_checkpoint('upsample', device))
+    print(f"{-t_st+time.time()} seconds")
     
     # t_st=time.time()
     # g_st=get_gpu_memory_usage()
@@ -52,33 +77,43 @@ def main():
     # print(f"resnet:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
     # print(f"total gpu: {get_gpu_memory_usage()}")
     
-    init_t=time.time()
-    print("before load model allocated_mem: ", (get_gpu_free_memory_usage())/(1024**2))
+    # init_t=time.time()
+    # print("before load model allocated_mem: ", (get_gpu_free_memory_usage())/(1024**2))
+    # torch.cuda.empty_cache()
+    # # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # g_sta=get_gpu_free_memory_usage()
+    # t_st=time.time()
+    # # model1 = torch.load('base300_all.pt', map_location=torch.device('cpu'))
+    # model1 = torch.load('base300_all2.pt')
+    # # resnet1 = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+    # # model1 = model1.to(device)
+    # # print("allocated_mem1: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
+    # print(f"base_1:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    # print("allocated_mem1: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
+        
+    # torch.cuda.empty_cache()
+        
+    # # t_st=time.time()
+    # g_st=get_gpu_memory_usage()
+    # g_sta=get_gpu_free_memory_usage()
+    # t_st=time.time()
+    # # model1 = torch.load('base300_all.pt', map_location=torch.device('cpu'))
+    # # model2 = torch.load('base300_all1.pt')
+    # # resnet2 = models.resnet50(pretrained=True)
+    # # resnet2 = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+    # # model2 = model2.to(device)
+    # # print("allocated_mem2: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
+    # print(f"base_2:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    # print("allocated_mem2: ", (get_gpu_free_memory_usage()-g_sta)/(1024**0))
     
-    t_st=time.time()
-    g_st=get_gpu_memory_usage()
-    g_sta=get_gpu_free_memory_usage()
-    # model1 = torch.load('base300_all.pt', map_location=torch.device('cpu'))
-    model1 = torch.load('upsampler_all.pt')
-    model1 = model1.to(device)
-    print("allocated_mem1: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
-    print(f"base_1:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
-    
-    t_st=time.time()
-    g_st=get_gpu_memory_usage()
-    g_sta=get_gpu_free_memory_usage()
-    # model1 = torch.load('base300_all.pt', map_location=torch.device('cpu'))
-    model2 = torch.load('base300_all.pt')
-    model2 = model2.to(device)
-    print("allocated_mem2: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
-    print(f"base_2:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
-    
-    g_st=get_gpu_memory_usage()
-    g_sta=get_gpu_free_memory_usage()
-    model1 = model1.cpu()
-    # model1 = model1.to(device)
-    print("to gpu allocated_mem1: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
-    print(f"to gpu base_1:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
+    # g_st=get_gpu_memory_usage()
+    # g_sta=get_gpu_free_memory_usage()
+    # model1 = model1.cpu()
+    # torch.cuda.empty_cache()
+    # # model1 = model1.to(device)
+    # print("to gpu allocated_mem1: ", (get_gpu_free_memory_usage()-g_sta)/(1024**2))
+    # print(f"to gpu base_1:{-t_st+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
     
     # t_st=time.time()
     # g_st=get_gpu_memory_usage()
@@ -303,7 +338,7 @@ def main():
     # # print(f"bp0{get_gpu_memory_usage()}")
     # print(f"b{-init_t+time.time()} seconds, gpu: {get_gpu_memory_usage()-g_st}")
     
-    print(f"total gpu: {get_gpu_memory_usage()}")
+    # print(f"total gpu: {get_gpu_memory_usage()}")
     
     # Remember to close the file to ensure everything is saved
     sys.stdout.close()

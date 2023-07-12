@@ -5,8 +5,10 @@ def main():
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json','base1B-out.json']
     # file_list=['base40M-textvec-out.json','base40M-out.json','base300M-out.json']
     # label_dict={'base40M-textvec-out.json':'base40M, text-only','base40M-out.json':'base40M, image-based','base300M-out.json':'base300M, image-based'}
-    file_list=['base40M-textvec.json','base40M-img.json','base300M-img.json']
-    label_dict={'base40M-textvec.json':'40M, text-only','base40M-img.json':'40M','base300M-img.json':'300M'}
+    # file_list=['base40M-textvec.json','base40M-img.json','base300M-img.json']
+    # label_dict={'base40M-textvec.json':'40M, text-only','base40M-img.json':'40M','base300M-img.json':'300M'}
+    file_list=['base40M-img.json']
+    label_dict={'base40M-img.json':'40M'}
     # file_list=['base40M-textvec-tmp.json','base40M-textvec.json','base40M-img.json','base300M-img.json']
     # label_dict={'base40M-textvec-tmp.json':'40M, text-only, tmp','base40M-textvec.json':'base40M, text-only','base40M-img.json':'base40M, image-based','base300M-img.json':'base300M, image-based'}
     plt.figure(figsize=(10,6))
@@ -20,7 +22,7 @@ def main():
         data=temp_dict['mem']
         
         timestamps = [t for t, _ in data]
-        measured_val = [m for _, m in data]
+        measured_val = [m/(1024**0) for _, m in data]
         plt.plot(timestamps, measured_val,label=label_dict[file_name],linewidth=3)
     
     dot_size=100
@@ -56,12 +58,12 @@ def main():
     #         head_length=10)  # Length of the arrowhead
 
 
-    plt.xlim(0,220)
+    # plt.xlim(0,220)
     plt.xticks(fontsize=27)
     plt.yticks(fontsize=27)
     plt.legend(fontsize=25,loc='lower right')
     plt.grid(True)
-    plt.savefig('./point-e-mem-plot.png')
+    plt.savefig('./point-e-mem-plot-api.png')
     plt.show()
 
 if __name__ == "__main__":

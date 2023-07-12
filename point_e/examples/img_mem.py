@@ -18,10 +18,21 @@ import sys
 import json
 
 def get_gpu_memory_usage():
+    # torch.cuda.empty_cache()
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,nounits,noheader'])
     memory_used = re.findall(r'\d+', output.decode('utf-8'))
     return int(memory_used[0])
 
+# def get_gpu_memory_usage():
+#     device = torch.device("cuda")
+#     # Get the amount of total memory in bytes
+#     # total_memory = torch.cuda.get_device_properties(device).total_memory
+#     # Get the amount of memory allocated by tensors in bytes
+#     # allocated_memory = torch.cuda.memory_allocated(device)
+#     # Get the amount of free memory in bytes
+#     # free_memory = torch.cuda.memory_reserved(device) - allocated_memory
+#     torch.cuda.empty_cache()
+#     return torch.cuda.max_memory_reserved(device)/(1024**2)
 def get_gpu_utilization():
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,nounits,noheader'])
     gpu_util = re.findall(r'\d+', output.decode('utf-8'))
@@ -81,13 +92,13 @@ class GPU_moniter:
     def monitor_memory(self):
         while True:
             memory_usage = get_gpu_memory_usage()
-            util_mem_usage = get_gpu_utilization()
+            # util_mem_usage = get_gpu_utilization()
             vol_mem_usage = get_volatile_gpu_memory()
             power_usage=get_gpu_power_consumption()
             if memory_usage is not None:
                 current_time = time.time() - self.start_time
                 self.memory_usage_data.append((current_time, memory_usage))
-                self.util_data.append((current_time, util_mem_usage))
+                # self.util_data.append((current_time, util_mem_usage))
                 self.vol_mem_usage_data.append((current_time, vol_mem_usage))
                 self.power_data.append((current_time, power_usage))
             else:
@@ -106,14 +117,14 @@ class GPU_moniter:
 
         output_dict={}
         output_dict['mem']=self.memory_usage_data
-        output_dict['util']=self.util_data
+        # output_dict['util']=self.util_data
         output_dict['vol']=self.vol_mem_usage_data
         output_dict['power']=self.power_data
         # Serialize the dictionary to a JSON string
         json_str = json.dumps(output_dict)
 
         # Write the JSON string to a file
-        with open("base300M-img.json", "w") as file:
+        with open("base40M-img.json", "w") as file:
             file.write(json_str)
         
     def mem_plot(self, mode='mem'):
@@ -131,11 +142,11 @@ class GPU_moniter:
 
 def main():
     # Open the file in write mode
-    sys.stdout = open('base300M-img.txt', 'w')
+    sys.stdout = open('base40M-img.txt', 'w')
     init_t=time.time()
     gpu_mode=True
     if gpu_mode:
-        gpu_moniter=GPU_moniter(0.1)
+        gpu_moniter=GPU_moniter(0.0000000001)
         gpu_memory = get_gpu_memory_usage()
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -145,7 +156,7 @@ def main():
     print(f"current time {time.time()-init_t}")
 
     print('creating base model...')
-    base_name = 'base300M' # use base300M or base1B for better results
+    base_name = 'base40M' # use base300M or base1B for better results
     base_model = model_from_config(MODEL_CONFIGS[base_name], device)
     
     total_para_nums = 0
